@@ -1,10 +1,17 @@
 {
   "Deploy": {
     "Project": {
-      "Name": "aurora arc",
+      "Name": "Aurora Arc",
       "Alias": "aurora-arc",
       "Id": "c80a3a53-1fd4-402a-9e69-5ac53e616673",
+      "Url": "https://www.s1.umbraco.io/project/aurora-arc",
       "Workspaces": [
+        {
+          "Id": "141af52a-a965-434c-9ace-591e8e80317e",
+          "Name": "Development",
+          "Type": "development",
+          "Url": "https://dev-aurora-arc.euwest01.umbraco.io"
+        },
         {
           "Id": "d3958549-0133-4bbf-9a64-5d8c3b30e148",
           "Name": "Live",
