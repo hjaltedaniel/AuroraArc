@@ -1,7 +1,17 @@
 {
   "Deploy": {
     "Project": {
-      "Workspaces": []
+      "Name": "aurora arc",
+      "Alias": "aurora-arc",
+      "Id": "c80a3a53-1fd4-402a-9e69-5ac53e616673",
+      "Workspaces": [
+        {
+          "Id": "d3958549-0133-4bbf-9a64-5d8c3b30e148",
+          "Name": "Live",
+          "Type": "live",
+          "Url": "https://aurora-arc.euwest01.umbraco.io"
+        }
+      ]
     },
     "Settings": {}
   },
