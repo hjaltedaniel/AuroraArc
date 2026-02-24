@@ -1,8 +1,15 @@
+using Umbraco.Commerce.Extensions;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
+    .AddUmbracoCommerce(builder => {
+        builder.AddSQLite();
+        builder.AddStorefrontApi();
+    })
+    .AddDeliveryApi()
     .AddComposers()
     .Build();
 
