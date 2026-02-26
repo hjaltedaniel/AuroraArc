@@ -1,0 +1,114 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand Colors */
+  --color-midnight: #0B1026;
+  --color-midnight-light: #131B3A;
+  --color-midnight-lighter: #1C2750;
+
+  --color-teal: #00E5C8;
+  --color-teal-dim: #00B8A0;
+  --color-teal-glow: rgba(0, 229, 200, 0.25);
+
+  --color-coral: #FF6B4A;
+  --color-coral-dim: #E0553A;
+  --color-coral-glow: rgba(255, 107, 74, 0.25);
+
+  --color-glacier: #B4E0F7;
+  --color-glacier-dim: #8DC4E0;
+
+  --color-violet: #A78BFA;
+  --color-violet-dim: #8B6FE0;
+  --color-violet-glow: rgba(167, 139, 250, 0.25);
+
+  --color-surface: rgba(11, 16, 38, 0.6);
+  --color-surface-light: rgba(28, 39, 80, 0.5);
+
+  /* Font */
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+  /* Glassmorphism tokens */
+  --glass-bg: rgba(11, 16, 38, 0.65);
+  --glass-bg-light: rgba(28, 39, 80, 0.4);
+  --glass-border: rgba(0, 229, 200, 0.12);
+  --glass-border-hover: rgba(0, 229, 200, 0.25);
+  --glass-blur: 16px;
+}
+
+/* Base Styles */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-midnight);
+  color: var(--color-glacier);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-midnight);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-midnight-lighter);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-teal-dim);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-teal-glow);
+  color: white;
+}
+
+/* Utility Classes */
+@utility glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+@utility glass-light {
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+@utility glow-teal {
+  box-shadow: 0 0 20px var(--color-teal-glow), 0 0 60px rgba(0, 229, 200, 0.08);
+}
+
+@utility glow-violet {
+  box-shadow: 0 0 20px var(--color-violet-glow), 0 0 60px rgba(167, 139, 250, 0.08);
+}
+
+@utility glow-coral {
+  box-shadow: 0 0 20px var(--color-coral-glow), 0 0 60px rgba(255, 107, 74, 0.08);
+}
+
+@utility text-gradient-teal {
+  background: linear-gradient(135deg, var(--color-teal), var(--color-glacier));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-coral {
+  background: linear-gradient(135deg, var(--color-coral), #FFB088);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility hud-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 229, 200, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 200, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
