@@ -45,8 +45,9 @@ export interface Product {
   limitedDropEnds?: string // ISO date
   accentColor: BrandColor
   storyExcerpt: string
-  storyFull: string
+  storyFull: string // may contain HTML markup from Compose longDescription
   inStock: boolean
+  heroImageUrl?: string // populated when Compose heroImage is available
 }
 
 export interface CartItem {

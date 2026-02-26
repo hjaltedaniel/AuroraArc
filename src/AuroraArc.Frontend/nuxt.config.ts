@@ -5,6 +5,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  runtimeConfig: {
+    composeGraphqlEndpoint: process.env.COMPOSE_GRAPHQL_ENDPOINT || 'https://graphql.germanywestcentral.umbracocompose.com/hjalte/production',
+    composeClientId: process.env.COMPOSE_CLIENT_ID || '',
+    composeClientSecret: process.env.COMPOSE_CLIENT_SECRET || '',
+    composeTokenEndpoint: process.env.COMPOSE_TOKEN_ENDPOINT || 'https://management.umbracocompose.com/v1/auth/token',
+  },
+
   modules: [
     '@nuxtjs/google-fonts',
     '@pinia/nuxt',

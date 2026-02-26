@@ -1,9 +1,9 @@
-import { products } from '~~/server/utils/products'
+import { fetchAllProducts } from '~~/server/utils/composeProducts'
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const query = getQuery(event)
 
-  let filtered = [...products]
+  let filtered = await fetchAllProducts()
 
   // Filter by category
   if (query.category) {

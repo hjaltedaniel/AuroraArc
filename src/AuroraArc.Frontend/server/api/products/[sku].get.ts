@@ -1,10 +1,12 @@
-import { products } from '~~/server/utils/products'
+import { fetchAllProducts } from '~~/server/utils/composeProducts'
 
-export default defineEventHandler((event) => {
-  const sku = getRouterParam(event, 'sku')
+export default defineEventHandler(async (event) => {
+  const identifier = getRouterParam(event, 'sku')
+
+  const products = await fetchAllProducts()
 
   const product = products.find(
-    p => p.sku === sku || p.slug === sku,
+    p => p.sku === identifier || p.slug === identifier,
   )
 
   if (!product) {

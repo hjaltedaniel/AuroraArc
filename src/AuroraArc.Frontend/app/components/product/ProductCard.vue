@@ -22,7 +22,13 @@ const techColor: Record<string, 'teal' | 'violet' | 'coral' | 'glacier'> = {
     <NuxtLink :to="`/product/${product.slug}`" class="block">
       <!-- Image -->
       <div class="aspect-square relative overflow-hidden">
-        <ProductPlaceholderSvg :category="product.category" :color="product.accentColor" />
+        <img
+          v-if="product.heroImageUrl"
+          :src="product.heroImageUrl"
+          :alt="product.name"
+          class="w-full h-full object-cover"
+        />
+        <ProductPlaceholderSvg v-else :category="product.category" :color="product.accentColor" />
 
         <!-- Badges -->
         <div class="absolute top-3 left-3 flex flex-col gap-1.5">

@@ -55,7 +55,13 @@ const techColor: Record<string, string> = {
       <div class="grid lg:grid-cols-2 gap-10">
         <!-- Image -->
         <div class="glass rounded-2xl overflow-hidden aspect-square">
-          <ProductPlaceholderSvg :category="product.category" :color="product.accentColor" />
+          <img
+            v-if="product.heroImageUrl"
+            :src="product.heroImageUrl"
+            :alt="product.name"
+            class="w-full h-full object-cover"
+          />
+          <ProductPlaceholderSvg v-else :category="product.category" :color="product.accentColor" />
         </div>
 
         <!-- Info -->
