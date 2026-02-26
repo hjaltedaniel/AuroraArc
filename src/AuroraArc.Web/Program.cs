@@ -1,13 +1,38 @@
+using AuroraArc.Core.Commerce.Adapters;
+using AuroraArc.Core.Commerce.Client;
+using AuroraArc.Core.Commerce.GraphQL;
+using AuroraArc.Core.Commerce.Options;
+using Umbraco.Commerce.Core.Adapters;
 using Umbraco.Commerce.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+// ─── Umbraco Compose options ──────────────────────────────────────────────────
+builder.Services.Configure<ComposeOptions>(
+    builder.Configuration.GetSection(ComposeOptions.SectionName));
+
+// ─── HTTP client infrastructure ───────────────────────────────────────────────
+builder.Services.AddHttpClient("ComposeAuth");
+builder.Services.AddHttpClient("ComposeGraphQL");
+
+// ─── In-memory cache (used by ComposeProductAdapter for SKU lookups) ──────────
+builder.Services.AddMemoryCache();
+
+// ─── Compose service layer ────────────────────────────────────────────────────
+builder.Services.AddSingleton<ComposeTokenService>();
+builder.Services.AddSingleton<ComposeGraphQLClient>();
+
+// ─── Umbraco ──────────────────────────────────────────────────────────────────
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
-    .AddUmbracoCommerce(builder => {
-        builder.AddSQLite();
-        builder.AddStorefrontApi();
+    .AddUmbracoCommerce(commerceBuilder =>
+    {
+        commerceBuilder.AddSQLite();
+        commerceBuilder.AddStorefrontApi();
+
+        // Replace the default Umbraco CMS product adapter with the Compose adapter
+        commerceBuilder.Services.AddUnique<IProductAdapter, ComposeProductAdapter>();
     })
     .AddDeliveryApi()
     .AddComposers()
