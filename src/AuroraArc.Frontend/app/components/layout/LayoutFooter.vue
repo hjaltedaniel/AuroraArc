@@ -1,33 +1,12 @@
 <script setup lang="ts">
-const columns = [
-  {
-    title: 'Explore',
-    links: [
-      { label: 'Shop All', to: '/shop' },
-      { label: 'Navigation Gear', to: '/category/navigation-gear' },
-      { label: 'Wearable Tech', to: '/category/wearable-tech' },
-      { label: 'Expedition Equipment', to: '/category/expedition-equipment' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'Our Story', to: '#' },
-      { label: 'Field Journal', to: '#' },
-      { label: 'Sustainability', to: '#' },
-      { label: 'Careers', to: '#' },
-    ],
-  },
-  {
-    title: 'Support',
-    links: [
-      { label: 'Contact', to: '#' },
-      { label: 'Shipping & Returns', to: '#' },
-      { label: 'Warranty', to: '#' },
-      { label: 'FAQ', to: '#' },
-    ],
-  },
-]
+const { data: settings } = await useSiteSettings()
+
+const columns = computed(() =>
+  settings.value.footerColumns.map(col => ({
+    title: col.title,
+    links: col.links.map(l => ({ label: l.label, to: l.url })),
+  }))
+)
 </script>
 
 <template>
@@ -43,10 +22,10 @@ const columns = [
                 <path d="M12 8v6" />
               </svg>
             </div>
-            <span class="text-lg font-bold text-white tracking-tight">Aurora<span class="text-teal">Arc</span></span>
+            <span class="text-lg font-bold text-white tracking-tight">{{ settings.logoText }}<span class="text-teal">{{ settings.logoHighlight }}</span></span>
           </NuxtLink>
           <p class="text-sm text-glacier/50 leading-relaxed">
-            Precision expedition gear fusing cutting-edge tech with rugged field performance.
+            {{ settings.footerBrandDescription }}
           </p>
         </div>
 
@@ -65,8 +44,8 @@ const columns = [
 
       <!-- Bottom bar -->
       <div class="mt-12 pt-8 border-t border-midnight-lighter flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p class="text-xs text-glacier/30">&copy; {{ new Date().getFullYear() }} Aurora Arc. All rights reserved.</p>
-        <p class="text-xs text-glacier/30">This is a demo storefront.</p>
+        <p class="text-xs text-glacier/30">{{ settings.copyrightText }}</p>
+        <p class="text-xs text-glacier/30">{{ settings.bottomNotice }}</p>
       </div>
     </div>
   </footer>

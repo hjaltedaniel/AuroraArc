@@ -1,8 +1,11 @@
 <script setup lang="ts">
+const { data: home } = await useCmsHome()
+const ld = computed(() => home.value.limitedDrop)
+
 const { data: drops } = await useProducts({ limitedDrop: true })
 
 const firstDrop = computed(() => drops.value?.[0])
-const endDate = computed(() => firstDrop.value?.limitedDropEnds || '')
+const endDate = computed(() => ld.value.countdownEndDate || firstDrop.value?.limitedDropEnds || '')
 
 const { days, hours, minutes, seconds, isExpired } = useCountdown(endDate.value)
 const { formatPrice } = useFormatPrice()
@@ -19,12 +22,12 @@ const { formatPrice } = useFormatPrice()
         <div class="relative z-10 grid md:grid-cols-2 gap-10 items-center">
           <!-- Content -->
           <div>
-            <ArcBadge color="coral" class="mb-4">Limited Drop</ArcBadge>
+            <ArcBadge color="coral" class="mb-4">{{ ld.badgeText }}</ArcBadge>
             <h2 class="text-3xl sm:text-4xl font-bold text-white">
-              Time-Sensitive <span class="text-gradient-coral">Releases</span>
+              {{ ld.titleBefore }} <span class="text-gradient-coral">{{ ld.titleHighlight }}</span>
             </h2>
             <p class="text-glacier/50 mt-3 leading-relaxed">
-              Exclusive gear drops available for a limited time. Once they're gone, they're gone.
+              {{ ld.description }}
             </p>
 
             <!-- Countdown -->

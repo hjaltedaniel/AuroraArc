@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const { data: home } = await useCmsHome()
+const fg = computed(() => home.value.featuredGrid)
+
 const { data: products } = await useProducts({ featured: true })
 </script>
 
@@ -9,12 +12,12 @@ const { data: products } = await useProducts({ featured: true })
       <div class="flex items-end justify-between mb-10">
         <div>
           <h2 class="text-3xl sm:text-4xl font-bold text-white">
-            Featured <span class="text-gradient-teal">Gear</span>
+            {{ fg.titleBefore }} <span class="text-gradient-teal">{{ fg.titleHighlight }}</span>
           </h2>
-          <p class="text-glacier/50 mt-2">Hand-picked by our expedition team</p>
+          <p class="text-glacier/50 mt-2">{{ fg.subtitle }}</p>
         </div>
-        <ArcButton variant="secondary" size="sm" to="/shop" class="hidden sm:flex">
-          View All
+        <ArcButton variant="secondary" size="sm" :to="fg.viewAllUrl" class="hidden sm:flex">
+          {{ fg.viewAllText }}
         </ArcButton>
       </div>
 
@@ -29,8 +32,8 @@ const { data: products } = await useProducts({ featured: true })
 
       <!-- Mobile CTA -->
       <div class="mt-8 text-center sm:hidden">
-        <ArcButton variant="secondary" size="md" to="/shop">
-          View All Products
+        <ArcButton variant="secondary" size="md" :to="fg.viewAllUrl">
+          {{ fg.viewAllText }}
         </ArcButton>
       </div>
     </div>

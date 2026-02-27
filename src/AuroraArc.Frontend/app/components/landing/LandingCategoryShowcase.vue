@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { BrandColor, ProductCategory } from '~~/shared/types/product'
 
+const { data: home } = await useCmsHome()
+const showcase = computed(() => home.value.categoryShowcase)
+
 const categories: { id: ProductCategory; label: string; description: string; color: BrandColor; icon: string }[] = [
   {
     id: 'navigation-gear',
@@ -58,7 +61,7 @@ const hoverClasses: Record<BrandColor, string> = {
   <section class="py-20 px-4">
     <div class="max-w-7xl mx-auto">
       <h2 class="text-3xl sm:text-4xl font-bold text-white mb-10">
-        Shop by <span class="text-gradient-teal">Category</span>
+        {{ showcase.titleBefore }} <span class="text-gradient-teal">{{ showcase.titleHighlight }}</span>
       </h2>
 
       <!-- Horizontal scroll on mobile, grid on desktop -->

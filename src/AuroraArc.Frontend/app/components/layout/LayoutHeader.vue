@@ -1,13 +1,11 @@
 <script setup lang="ts">
+const { data: settings } = await useSiteSettings()
 const cart = useCartStore()
 const mobileOpen = ref(false)
 
-const navLinks = [
-  { label: 'Shop', to: '/shop' },
-  { label: 'Navigation', to: '/category/navigation-gear' },
-  { label: 'Wearable', to: '/category/wearable-tech' },
-  { label: 'Expedition', to: '/category/expedition-equipment' },
-]
+const navLinks = computed(() =>
+  settings.value.headerNavLinks.map(l => ({ label: l.label, to: l.url }))
+)
 </script>
 
 <template>
@@ -22,7 +20,7 @@ const navLinks = [
               <path d="M12 8v6" />
             </svg>
           </div>
-          <span class="text-lg font-bold text-white tracking-tight">Aurora<span class="text-teal">Arc</span></span>
+          <span class="text-lg font-bold text-white tracking-tight">{{ settings.logoText }}<span class="text-teal">{{ settings.logoHighlight }}</span></span>
         </NuxtLink>
 
         <!-- Desktop Nav -->

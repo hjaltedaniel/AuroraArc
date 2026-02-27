@@ -1,29 +1,14 @@
 <script setup lang="ts">
-const stories = [
-  {
-    title: 'Crossing the Ice: 14 Days on the Vatnajokull Glacier',
-    excerpt: 'Our team tested the full Aurora Arc lineup across Europe\'s largest ice cap. What we learned changed how we design expedition gear.',
-    tag: 'Expedition Report',
-    color: 'teal' as const,
-  },
-  {
-    title: 'The Future of Trail Navigation is AI',
-    excerpt: 'How machine learning is transforming backcountry wayfinding - and why your next GPS will know the trail better than you do.',
-    tag: 'Technology',
-    color: 'violet' as const,
-  },
-  {
-    title: 'Leave No Trace, Leave Better Tech',
-    excerpt: 'Our sustainability commitments: carbon-neutral shipping, recycled materials, and a repair-first warranty program.',
-    tag: 'Sustainability',
-    color: 'glacier' as const,
-  },
-]
+const { data: home } = await useCmsHome()
+const fj = computed(() => home.value.fieldJournal)
+
+const { data: stories } = await useCmsJournal()
 
 const colorClasses: Record<string, string> = {
   teal: 'bg-teal/10 text-teal',
   violet: 'bg-violet/10 text-violet',
   glacier: 'bg-glacier/10 text-glacier',
+  coral: 'bg-coral/10 text-coral',
 }
 </script>
 
@@ -33,20 +18,20 @@ const colorClasses: Record<string, string> = {
       <div class="flex items-end justify-between mb-10">
         <div>
           <h2 class="text-3xl sm:text-4xl font-bold text-white">
-            Field <span class="text-gradient-teal">Journal</span>
+            {{ fj.titleBefore }} <span class="text-gradient-teal">{{ fj.titleHighlight }}</span>
           </h2>
-          <p class="text-glacier/50 mt-2">Stories from the edge of exploration</p>
+          <p class="text-glacier/50 mt-2">{{ fj.subtitle }}</p>
         </div>
       </div>
 
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <article
           v-for="story in stories"
-          :key="story.title"
+          :key="story.id"
           class="glass rounded-xl p-6 hover:border-teal/20 transition-all group cursor-pointer"
         >
           <!-- Tag -->
-          <span :class="['inline-block px-3 py-1 rounded-full text-xs font-medium mb-4', colorClasses[story.color]]">
+          <span :class="['inline-block px-3 py-1 rounded-full text-xs font-medium mb-4', colorClasses[story.tagColor] ?? 'bg-teal/10 text-teal']">
             {{ story.tag }}
           </span>
 
