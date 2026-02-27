@@ -8,6 +8,14 @@
  *
  * All results are cached for 5 minutes (TTL-based) to avoid redundant
  * Compose round-trips across concurrent SSR requests.
+ *
+ * SCHEMA NOTE: Several fields in this Compose project are stored as JSON
+ * scalar types (`headerNavLinks.items`, `footerColumns.items`,
+ * `pageSections.items`, and the nested `ctas`/`stats` within HeroSection).
+ * These fields cannot be sub-selected in GraphQL — they are queried as leaf
+ * scalars and parsed as raw BlockList arrays in the mapper functions below.
+ * The shape of each item follows the Compose BlockList convention:
+ *   { content: { id, contentType, properties: {...} }, settings: null }
  */
 
 import type {
@@ -17,11 +25,6 @@ import type {
   FooterColumn,
   HeroCta,
   HeroStat,
-  HeroSection,
-  FeaturedGridSection,
-  CategoryShowcaseSection,
-  LimitedDropSection,
-  FieldJournalSection,
   LandingPageSections,
   JournalEntry,
 } from '~~/shared/types/content'
@@ -44,110 +47,14 @@ const CONTENT_QUERY = /* GraphQL */ `
           copyrightText
           bottomNotice
           footerBrandDescription
-          headerNavLinks {
-            items {
-              __typename
-              ... on NavLink {
-                properties {
-                  label
-                  url
-                }
-              }
-            }
-          }
-          footerColumns {
-            items {
-              __typename
-              ... on FooterColumn {
-                properties {
-                  title
-                  links {
-                    items {
-                      __typename
-                      ... on FooterLink {
-                        properties {
-                          label
-                          url
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+          headerNavLinks { items }
+          footerColumns { items }
         }
       }
       ... on LandingPage {
         properties {
           pageTitle
-          pageSections {
-            items {
-              __typename
-              ... on HeroSection {
-                properties {
-                  announcementBadge
-                  headlineBefore
-                  headlineHighlight
-                  headlineAfter
-                  tagline
-                  ctas {
-                    items {
-                      __typename
-                      ... on HeroCta {
-                        properties {
-                          buttonText
-                          buttonUrl
-                        }
-                      }
-                    }
-                  }
-                  stats {
-                    items {
-                      __typename
-                      ... on HeroStat {
-                        properties {
-                          statValue
-                          statLabel
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              ... on FeaturedGridSection {
-                properties {
-                  titleBefore
-                  titleHighlight
-                  subtitle
-                  viewAllText
-                  viewAllUrl
-                }
-              }
-              ... on CategoryShowcaseSection {
-                properties {
-                  titleBefore
-                  titleHighlight
-                }
-              }
-              ... on LimitedDropSection {
-                properties {
-                  badgeText
-                  titleBefore
-                  titleHighlight
-                  description
-                  countdownEndDate
-                }
-              }
-              ... on FieldJournalSection {
-                properties {
-                  titleBefore
-                  titleHighlight
-                  subtitle
-                }
-              }
-            }
-          }
+          pageSections { items }
         }
       }
       ... on JournalEntry {
@@ -169,22 +76,17 @@ const CONTENT_QUERY = /* GraphQL */ `
 // Raw Compose types
 // ---------------------------------------------------------------------------
 
-interface ComposeNavLinkItem {
-  __typename: 'NavLink'
-  properties: { label: string | null; url: string | null } | null
-}
-
-interface ComposeFooterLinkItem {
-  __typename: 'FooterLink'
-  properties: { label: string | null; url: string | null } | null
-}
-
-interface ComposeFooterColumnItem {
-  __typename: 'FooterColumn'
-  properties: {
-    title: string | null
-    links: { items: ComposeFooterLinkItem[] } | null
+/**
+ * Shape of a single item inside a Compose BlockList JSON scalar.
+ * `contentType` is the CMS alias (e.g. "NavLink", "HeroSection").
+ */
+interface ComposeBlockItem {
+  content: {
+    id: string
+    contentType: string
+    properties: Record<string, unknown>
   } | null
+  settings: unknown
 }
 
 interface ComposeSiteSettings {
@@ -197,86 +99,20 @@ interface ComposeSiteSettings {
     copyrightText: string | null
     bottomNotice: string | null
     footerBrandDescription: string | null
-    headerNavLinks: { items: ComposeNavLinkItem[] } | null
-    footerColumns: { items: ComposeFooterColumnItem[] } | null
+    /** `.items` is a JSON scalar – queried as a leaf, parsed below */
+    headerNavLinks: { items: unknown } | null
+    /** `.items` is a JSON scalar – queried as a leaf, parsed below */
+    footerColumns: { items: unknown } | null
   } | null
 }
-
-interface ComposeHeroCtaItem {
-  __typename: 'HeroCta'
-  properties: { buttonText: string | null; buttonUrl: string | null } | null
-}
-
-interface ComposeHeroStatItem {
-  __typename: 'HeroStat'
-  properties: { statValue: string | null; statLabel: string | null } | null
-}
-
-interface ComposeHeroSection {
-  __typename: 'HeroSection'
-  properties: {
-    announcementBadge: string | null
-    headlineBefore: string | null
-    headlineHighlight: string | null
-    headlineAfter: string | null
-    tagline: string | null
-    ctas: { items: ComposeHeroCtaItem[] } | null
-    stats: { items: ComposeHeroStatItem[] } | null
-  } | null
-}
-
-interface ComposeFeaturedGridSection {
-  __typename: 'FeaturedGridSection'
-  properties: {
-    titleBefore: string | null
-    titleHighlight: string | null
-    subtitle: string | null
-    viewAllText: string | null
-    viewAllUrl: string | null
-  } | null
-}
-
-interface ComposeCategoryShowcaseSection {
-  __typename: 'CategoryShowcaseSection'
-  properties: {
-    titleBefore: string | null
-    titleHighlight: string | null
-  } | null
-}
-
-interface ComposeLimitedDropSection {
-  __typename: 'LimitedDropSection'
-  properties: {
-    badgeText: string | null
-    titleBefore: string | null
-    titleHighlight: string | null
-    description: string | null
-    countdownEndDate: string | null
-  } | null
-}
-
-interface ComposeFieldJournalSection {
-  __typename: 'FieldJournalSection'
-  properties: {
-    titleBefore: string | null
-    titleHighlight: string | null
-    subtitle: string | null
-  } | null
-}
-
-type ComposeSectionItem =
-  | ComposeHeroSection
-  | ComposeFeaturedGridSection
-  | ComposeCategoryShowcaseSection
-  | ComposeLimitedDropSection
-  | ComposeFieldJournalSection
 
 interface ComposeLandingPage {
   __typename: 'LandingPage'
   id: string
   properties: {
     pageTitle: string | null
-    pageSections: { items: ComposeSectionItem[] } | null
+    /** `.items` is a JSON scalar – queried as a leaf, parsed below */
+    pageSections: { items: unknown } | null
   } | null
 }
 
@@ -293,7 +129,11 @@ interface ComposeJournalEntry {
   } | null
 }
 
-type ComposeContentItem = ComposeSiteSettings | ComposeLandingPage | ComposeJournalEntry | { __typename: string; id: string }
+type ComposeContentItem =
+  | ComposeSiteSettings
+  | ComposeLandingPage
+  | ComposeJournalEntry
+  | { __typename: string; id: string }
 
 // ---------------------------------------------------------------------------
 // Default fallback values
@@ -416,45 +256,126 @@ const DEFAULT_JOURNAL_ENTRIES: JournalEntry[] = [
 ]
 
 // ---------------------------------------------------------------------------
+// JSON scalar parsing helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Coerce an unknown value to a `ComposeBlockItem[]`.
+ * Returns an empty array for anything that isn't an array.
+ */
+function asBlocks(raw: unknown): ComposeBlockItem[] {
+  return Array.isArray(raw) ? (raw as ComposeBlockItem[]) : []
+}
+
+/**
+ * Normalise a raw JSON scalar that might be either:
+ *   - already an array:         `[{ content: {...} }, ...]`
+ *   - a connection wrapper:     `{ items: [...] }`
+ * Returns the inner array in both cases.
+ */
+function toItemsArray(raw: unknown): unknown {
+  if (Array.isArray(raw)) return raw
+  if (raw && typeof raw === 'object' && 'items' in raw) {
+    return (raw as { items: unknown }).items
+  }
+  return []
+}
+
+// ---------------------------------------------------------------------------
 // Mappers
 // ---------------------------------------------------------------------------
 
-function mapNavLinks(items: ComposeNavLinkItem[]): NavLink[] {
-  return items
-    .filter(i => i.__typename === 'NavLink' && i.properties)
-    .map(i => ({
-      label: i.properties?.label ?? '',
-      url: i.properties?.url ?? '#',
-    }))
-    .filter(l => l.label && l.url)
+function mapNavLinksFromJson(raw: unknown): NavLink[] {
+  return asBlocks(toItemsArray(raw))
+    .map((item) => {
+      const p = item?.content?.properties
+      if (!p) return null
+      return {
+        label: (p.label as string | null) ?? '',
+        url: (p.url as string | null) ?? '#',
+      }
+    })
+    .filter((l): l is NavLink => l !== null && Boolean(l.label))
 }
 
-function mapFooterColumns(items: ComposeFooterColumnItem[]): FooterColumn[] {
-  return items
-    .filter(i => i.__typename === 'FooterColumn' && i.properties)
-    .map(i => ({
-      title: i.properties?.title ?? '',
-      links: mapFooterLinks(i.properties?.links?.items ?? []),
-    }))
-    .filter(c => c.title)
+function mapFooterLinksFromJson(raw: unknown): FooterLink[] {
+  const arr = Array.isArray(raw) ? raw : (toItemsArray(raw) as unknown[])
+  if (!Array.isArray(arr)) return []
+  return (arr as unknown[])
+    .map((item: unknown) => {
+      if (!item || typeof item !== 'object') return null
+      const obj = item as Record<string, unknown>
+      // MultiUrlPicker shape: { name, url, ... }
+      if ('url' in obj) {
+        return {
+          label: (obj.name as string | null) ?? (obj.label as string | null) ?? '',
+          url: (obj.url as string | null) ?? '#',
+        }
+      }
+      // BlockList shape fallback: { content: { properties: { label, url } } }
+      const block = item as ComposeBlockItem
+      const p = block?.content?.properties
+      if (!p) return null
+      return {
+        label: (p.label as string | null) ?? '',
+        url: (p.url as string | null) ?? '#',
+      }
+    })
+    .filter((l): l is FooterLink => l !== null && Boolean(l.label))
 }
 
-function mapFooterLinks(items: ComposeFooterLinkItem[]): FooterLink[] {
-  return items
-    .filter(i => i.__typename === 'FooterLink' && i.properties)
-    .map(i => ({
-      label: i.properties?.label ?? '',
-      url: i.properties?.url ?? '#',
-    }))
-    .filter(l => l.label)
+function mapFooterColumnsFromJson(raw: unknown): FooterColumn[] {
+  return asBlocks(toItemsArray(raw))
+    .map((item) => {
+      const p = item?.content?.properties
+      if (!p) return null
+      // The Compose content type may use any of these aliases for the column heading
+      const title =
+        (p.title as string | null) ??
+        (p.columnTitle as string | null) ??
+        (p.heading as string | null) ??
+        (p.name as string | null) ??
+        ''
+      return {
+        title,
+        links: mapFooterLinksFromJson(p.links),
+      }
+    })
+    .filter((c): c is FooterColumn => c !== null && Boolean(c.title))
+}
+
+function mapCtasFromJson(raw: unknown): HeroCta[] {
+  return asBlocks(toItemsArray(raw))
+    .map((item) => {
+      const p = item?.content?.properties
+      if (!p) return null
+      return {
+        buttonText: (p.buttonText as string | null) ?? '',
+        buttonUrl: (p.buttonUrl as string | null) ?? '#',
+      }
+    })
+    .filter((c): c is HeroCta => c !== null && Boolean(c.buttonText))
+}
+
+function mapStatsFromJson(raw: unknown): HeroStat[] {
+  return asBlocks(toItemsArray(raw))
+    .map((item) => {
+      const p = item?.content?.properties
+      if (!p) return null
+      return {
+        statValue: (p.statValue as string | null) ?? '',
+        statLabel: (p.statLabel as string | null) ?? '',
+      }
+    })
+    .filter((s): s is HeroStat => s !== null && Boolean(s.statValue))
 }
 
 function mapSiteSettings(raw: ComposeSiteSettings): SiteSettings {
   const p = raw.properties
   if (!p) return DEFAULT_SITE_SETTINGS
 
-  const navLinks = mapNavLinks(p.headerNavLinks?.items ?? [])
-  const footerColumns = mapFooterColumns(p.footerColumns?.items ?? [])
+  const navLinks = mapNavLinksFromJson(p.headerNavLinks?.items)
+  const footerColumns = mapFooterColumnsFromJson(p.footerColumns?.items)
 
   return {
     siteTitle: p.siteTitle ?? DEFAULT_SITE_SETTINGS.siteTitle,
@@ -468,81 +389,9 @@ function mapSiteSettings(raw: ComposeSiteSettings): SiteSettings {
   }
 }
 
-function mapHeroSection(raw: ComposeHeroSection): HeroSection {
-  const p = raw.properties
-  const def = DEFAULT_LANDING_PAGE.hero
-  if (!p) return def
-
-  const ctas: HeroCta[] = (p.ctas?.items ?? [])
-    .filter(i => i.__typename === 'HeroCta' && i.properties)
-    .map(i => ({ buttonText: i.properties?.buttonText ?? '', buttonUrl: i.properties?.buttonUrl ?? '#' }))
-    .filter(c => c.buttonText)
-
-  const stats: HeroStat[] = (p.stats?.items ?? [])
-    .filter(i => i.__typename === 'HeroStat' && i.properties)
-    .map(i => ({ statValue: i.properties?.statValue ?? '', statLabel: i.properties?.statLabel ?? '' }))
-    .filter(s => s.statValue)
-
-  return {
-    announcementBadge: p.announcementBadge ?? def.announcementBadge,
-    headlineBefore: p.headlineBefore ?? def.headlineBefore,
-    headlineHighlight: p.headlineHighlight ?? def.headlineHighlight,
-    headlineAfter: p.headlineAfter ?? def.headlineAfter,
-    tagline: p.tagline ?? def.tagline,
-    ctas: ctas.length > 0 ? ctas : def.ctas,
-    stats: stats.length > 0 ? stats : def.stats,
-  }
-}
-
-function mapFeaturedGridSection(raw: ComposeFeaturedGridSection): FeaturedGridSection {
-  const p = raw.properties
-  const def = DEFAULT_LANDING_PAGE.featuredGrid
-  if (!p) return def
-  return {
-    titleBefore: p.titleBefore ?? def.titleBefore,
-    titleHighlight: p.titleHighlight ?? def.titleHighlight,
-    subtitle: p.subtitle ?? def.subtitle,
-    viewAllText: p.viewAllText ?? def.viewAllText,
-    viewAllUrl: p.viewAllUrl ?? def.viewAllUrl,
-  }
-}
-
-function mapCategoryShowcaseSection(raw: ComposeCategoryShowcaseSection): CategoryShowcaseSection {
-  const p = raw.properties
-  const def = DEFAULT_LANDING_PAGE.categoryShowcase
-  if (!p) return def
-  return {
-    titleBefore: p.titleBefore ?? def.titleBefore,
-    titleHighlight: p.titleHighlight ?? def.titleHighlight,
-  }
-}
-
-function mapLimitedDropSection(raw: ComposeLimitedDropSection): LimitedDropSection {
-  const p = raw.properties
-  const def = DEFAULT_LANDING_PAGE.limitedDrop
-  if (!p) return def
-  return {
-    badgeText: p.badgeText ?? def.badgeText,
-    titleBefore: p.titleBefore ?? def.titleBefore,
-    titleHighlight: p.titleHighlight ?? def.titleHighlight,
-    description: p.description ?? def.description,
-    countdownEndDate: p.countdownEndDate ?? def.countdownEndDate,
-  }
-}
-
-function mapFieldJournalSection(raw: ComposeFieldJournalSection): FieldJournalSection {
-  const p = raw.properties
-  const def = DEFAULT_LANDING_PAGE.fieldJournal
-  if (!p) return def
-  return {
-    titleBefore: p.titleBefore ?? def.titleBefore,
-    titleHighlight: p.titleHighlight ?? def.titleHighlight,
-    subtitle: p.subtitle ?? def.subtitle,
-  }
-}
-
 function mapLandingPage(raw: ComposeLandingPage): LandingPageSections {
-  const sections = raw.properties?.pageSections?.items ?? []
+  // pageSections.items is a JSON scalar: an array of ComposeBlockItem
+  const sections = asBlocks(raw.properties?.pageSections?.items)
 
   let hero = DEFAULT_LANDING_PAGE.hero
   let featuredGrid = DEFAULT_LANDING_PAGE.featuredGrid
@@ -551,22 +400,61 @@ function mapLandingPage(raw: ComposeLandingPage): LandingPageSections {
   let fieldJournal = DEFAULT_LANDING_PAGE.fieldJournal
 
   for (const section of sections) {
-    switch (section.__typename) {
-      case 'HeroSection':
-        hero = mapHeroSection(section as ComposeHeroSection)
+    const contentType = section?.content?.contentType
+    const p = section?.content?.properties
+    if (!contentType || !p) continue
+
+    switch (contentType) {
+      case 'HeroSection': {
+        // ctas and stats are also JSON scalars within the section properties
+        const ctas = mapCtasFromJson(p.ctas)
+        const stats = mapStatsFromJson(p.stats)
+        hero = {
+          announcementBadge: (p.announcementBadge as string | null) ?? DEFAULT_LANDING_PAGE.hero.announcementBadge,
+          headlineBefore: (p.headlineBefore as string | null) ?? DEFAULT_LANDING_PAGE.hero.headlineBefore,
+          headlineHighlight: (p.headlineHighlight as string | null) ?? DEFAULT_LANDING_PAGE.hero.headlineHighlight,
+          headlineAfter: (p.headlineAfter as string | null) ?? DEFAULT_LANDING_PAGE.hero.headlineAfter,
+          tagline: (p.tagline as string | null) ?? DEFAULT_LANDING_PAGE.hero.tagline,
+          ctas: ctas.length > 0 ? ctas : DEFAULT_LANDING_PAGE.hero.ctas,
+          stats: stats.length > 0 ? stats : DEFAULT_LANDING_PAGE.hero.stats,
+        }
         break
-      case 'FeaturedGridSection':
-        featuredGrid = mapFeaturedGridSection(section as ComposeFeaturedGridSection)
+      }
+      case 'FeaturedGridSection': {
+        featuredGrid = {
+          titleBefore: (p.titleBefore as string | null) ?? DEFAULT_LANDING_PAGE.featuredGrid.titleBefore,
+          titleHighlight: (p.titleHighlight as string | null) ?? DEFAULT_LANDING_PAGE.featuredGrid.titleHighlight,
+          subtitle: (p.subtitle as string | null) ?? DEFAULT_LANDING_PAGE.featuredGrid.subtitle,
+          viewAllText: (p.viewAllText as string | null) ?? DEFAULT_LANDING_PAGE.featuredGrid.viewAllText,
+          viewAllUrl: (p.viewAllUrl as string | null) ?? DEFAULT_LANDING_PAGE.featuredGrid.viewAllUrl,
+        }
         break
-      case 'CategoryShowcaseSection':
-        categoryShowcase = mapCategoryShowcaseSection(section as ComposeCategoryShowcaseSection)
+      }
+      case 'CategoryShowcaseSection': {
+        categoryShowcase = {
+          titleBefore: (p.titleBefore as string | null) ?? DEFAULT_LANDING_PAGE.categoryShowcase.titleBefore,
+          titleHighlight: (p.titleHighlight as string | null) ?? DEFAULT_LANDING_PAGE.categoryShowcase.titleHighlight,
+        }
         break
-      case 'LimitedDropSection':
-        limitedDrop = mapLimitedDropSection(section as ComposeLimitedDropSection)
+      }
+      case 'LimitedDropSection': {
+        limitedDrop = {
+          badgeText: (p.badgeText as string | null) ?? DEFAULT_LANDING_PAGE.limitedDrop.badgeText,
+          titleBefore: (p.titleBefore as string | null) ?? DEFAULT_LANDING_PAGE.limitedDrop.titleBefore,
+          titleHighlight: (p.titleHighlight as string | null) ?? DEFAULT_LANDING_PAGE.limitedDrop.titleHighlight,
+          description: (p.description as string | null) ?? DEFAULT_LANDING_PAGE.limitedDrop.description,
+          countdownEndDate: (p.countdownEndDate as string | null) ?? DEFAULT_LANDING_PAGE.limitedDrop.countdownEndDate,
+        }
         break
-      case 'FieldJournalSection':
-        fieldJournal = mapFieldJournalSection(section as ComposeFieldJournalSection)
+      }
+      case 'FieldJournalSection': {
+        fieldJournal = {
+          titleBefore: (p.titleBefore as string | null) ?? DEFAULT_LANDING_PAGE.fieldJournal.titleBefore,
+          titleHighlight: (p.titleHighlight as string | null) ?? DEFAULT_LANDING_PAGE.fieldJournal.titleHighlight,
+          subtitle: (p.subtitle as string | null) ?? DEFAULT_LANDING_PAGE.fieldJournal.subtitle,
+        }
         break
+      }
     }
   }
 
@@ -609,25 +497,33 @@ async function fetchContent(bustCache = false): Promise<ContentCache> {
     return _cache
   }
 
-  const data = await composeQuery<{ content: { items: ComposeContentItem[] } }>(CONTENT_QUERY)
+  let data: { content: { items: ComposeContentItem[] } }
+  try {
+    data = await composeQuery<{ content: { items: ComposeContentItem[] } }>(CONTENT_QUERY)
+  } catch (err) {
+    console.warn('[composeContent] Compose unavailable – using static defaults:', (err as Error).message)
+    const result: ContentCache = {
+      siteSettings: DEFAULT_SITE_SETTINGS,
+      landingPage: DEFAULT_LANDING_PAGE,
+      journalEntries: DEFAULT_JOURNAL_ENTRIES,
+      fetchedAt: Date.now(),
+    }
+    _cache = result
+    return result
+  }
 
-  let siteSettings = DEFAULT_SITE_SETTINGS
-  let landingPage = DEFAULT_LANDING_PAGE
+  let siteSettings: SiteSettings = DEFAULT_SITE_SETTINGS
+  let landingPage: LandingPageSections = DEFAULT_LANDING_PAGE
   const journalEntries: JournalEntry[] = []
 
   for (const item of data.content.items) {
-    switch (item.__typename) {
-      case 'SiteSettings':
-        siteSettings = mapSiteSettings(item as ComposeSiteSettings)
-        break
-      case 'LandingPage':
-        landingPage = mapLandingPage(item as ComposeLandingPage)
-        break
-      case 'JournalEntry': {
-        const entry = mapJournalEntry(item as ComposeJournalEntry)
-        if (entry.title) journalEntries.push(entry)
-        break
-      }
+    if (item.__typename === 'SiteSettings') {
+      siteSettings = mapSiteSettings(item as ComposeSiteSettings)
+    } else if (item.__typename === 'LandingPage') {
+      landingPage = mapLandingPage(item as ComposeLandingPage)
+    } else if (item.__typename === 'JournalEntry') {
+      const entry = mapJournalEntry(item as ComposeJournalEntry)
+      if (entry.title) journalEntries.push(entry)
     }
   }
 

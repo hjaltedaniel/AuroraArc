@@ -48,6 +48,7 @@ export interface Product {
   storyFull: string // may contain HTML markup from Compose longDescription
   inStock: boolean
   heroImageUrl?: string // populated when Compose heroImage is available
+  contentId?: string // Umbraco document GUID – used as productReference in Commerce API
 }
 
 export interface CartItem {

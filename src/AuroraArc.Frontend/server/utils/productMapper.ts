@@ -211,5 +211,6 @@ export function mapComposeProduct(node: ComposeProduct): Product | null {
     storyFull: p.longDescription?.markup ?? p.shortDescription ?? '',
     inStock: p.availability === 'In Stock' || (p.stockQuantity != null && p.stockQuantity > 0),
     heroImageUrl: resolveHeroImageUrl(p.heroImage),
+    contentId: node.id,
   }
 }

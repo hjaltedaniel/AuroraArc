@@ -6,11 +6,22 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   runtimeConfig: {
+    // Umbraco Compose (GraphQL content)
     composeGraphqlEndpoint: process.env.COMPOSE_GRAPHQL_ENDPOINT || 'https://graphql.germanywestcentral.umbracocompose.com/hjalte/production',
     composeClientId: process.env.COMPOSE_CLIENT_ID || '',
     composeClientSecret: process.env.COMPOSE_CLIENT_SECRET || '',
     composeTokenEndpoint: process.env.COMPOSE_TOKEN_ENDPOINT || 'https://management.umbracocompose.com/v1/auth/token',
+    // Umbraco Commerce (Storefront REST)
+    commerceApiBase: process.env.COMMERCE_API_BASE || 'https://dev-aurora-arc.euwest01.umbraco.io/umbraco/commerce/storefront/api/v1',
+    commerceApiKey:  process.env.COMMERCE_API_KEY  || 'a7F9kLm2Qx8ZpR4vT6yBn3HdW0sJcE5U',
   },
+
+  // Disable subdirectory prefix so ui/ArcButton.vue → ArcButton (not UiArcButton).
+  // All filenames already carry their own semantic prefix (Arc*, Layout*, Product*, Landing*)
+  // so stripping the directory prefix loses nothing and avoids mismatches in templates.
+  components: [
+    { path: '~/components', pathPrefix: false },
+  ],
 
   modules: [
     '@nuxtjs/google-fonts',

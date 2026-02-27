@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const cart = useCartStore()
+const cart = reactive(useCart())
 const { formatPrice } = useFormatPrice()
 </script>
 
@@ -64,42 +64,48 @@ const { formatPrice } = useFormatPrice()
           </div>
 
           <!-- Cart Items -->
-          <div
-            v-for="item in cart.items"
-            :key="item.product.sku"
-            class="flex gap-4 p-3 rounded-lg bg-midnight-light/50"
-          >
-            <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-              <ProductPlaceholderSvg :category="item.product.category" :color="item.product.accentColor" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-sm font-medium text-white truncate">{{ item.product.name }}</h3>
-              <p class="text-sm text-teal mt-0.5">{{ formatPrice(item.product.price) }}</p>
-              <div class="flex items-center gap-2 mt-2">
-                <button
-                  class="w-6 h-6 rounded border border-midnight-lighter text-glacier/50 hover:border-teal/30 hover:text-teal flex items-center justify-center text-xs transition-colors"
-                  @click="cart.updateQuantity(item.product.sku, item.quantity - 1)"
-                >
-                  -
-                </button>
-                <span class="text-sm text-glacier w-5 text-center">{{ item.quantity }}</span>
-                <button
-                  class="w-6 h-6 rounded border border-midnight-lighter text-glacier/50 hover:border-teal/30 hover:text-teal flex items-center justify-center text-xs transition-colors"
-                  @click="cart.updateQuantity(item.product.sku, item.quantity + 1)"
-                >
-                  +
-                </button>
-                <button
-                  class="ml-auto text-glacier/30 hover:text-coral transition-colors"
-                  @click="cart.removeItem(item.product.sku)"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                  </svg>
-                </button>
+          <template v-if="cart.items.length > 0">
+            <template
+              v-for="item in cart.items"
+              :key="item?.product?.sku"
+            >
+              <div
+                v-if="item && item.product"
+                class="flex gap-4 p-3 rounded-lg bg-midnight-light/50"
+              >
+                <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                  <ProductPlaceholderSvg :category="item.product.category" :color="item.product.accentColor" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-sm font-medium text-white truncate">{{ item.product.name }}</h3>
+                  <p class="text-sm text-teal mt-0.5">{{ formatPrice(item.product.price) }}</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <button
+                      class="w-6 h-6 rounded border border-midnight-lighter text-glacier/50 hover:border-teal/30 hover:text-teal flex items-center justify-center text-xs transition-colors"
+                      @click="cart.updateQuantity(item.product.sku, item.quantity - 1)"
+                    >
+                      -
+                    </button>
+                    <span class="text-sm text-glacier w-5 text-center">{{ item.quantity }}</span>
+                    <button
+                      class="w-6 h-6 rounded border border-midnight-lighter text-glacier/50 hover:border-teal/30 hover:text-teal flex items-center justify-center text-xs transition-colors"
+                      @click="cart.updateQuantity(item.product.sku, item.quantity + 1)"
+                    >
+                      +
+                    </button>
+                    <button
+                      class="ml-auto text-glacier/30 hover:text-coral transition-colors"
+                      @click="cart.removeItem(item.product.sku)"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </template>
+          </template>
         </div>
 
         <!-- Footer -->
