@@ -13,6 +13,7 @@
 import type { Product } from '~~/shared/types/product'
 import type { ComposeProduct } from './productMapper'
 import { mapComposeProduct } from './productMapper'
+import { products as staticProducts } from './products'
 
 // ---------------------------------------------------------------------------
 // GraphQL query
@@ -97,9 +98,16 @@ export async function fetchAllProducts(bustCache = false): Promise<Product[]> {
     return _cache.products
   }
 
-  const data = await composeQuery<{
-    products: { items: ComposeProduct[] }
-  }>(PRODUCTS_QUERY)
+  let data: { products: { items: ComposeProduct[] } }
+  try {
+    data = await composeQuery<{
+      products: { items: ComposeProduct[] }
+    }>(PRODUCTS_QUERY)
+  } catch (err) {
+    console.warn('[composeProducts] Compose unavailable – using static defaults:', (err as Error).message)
+    _cache = { products: staticProducts, fetchedAt: Date.now() }
+    return staticProducts
+  }
 
   const products = data.products.items
     .map(mapComposeProduct)
