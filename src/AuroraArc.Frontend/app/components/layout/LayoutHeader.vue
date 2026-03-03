@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { data: settings } = await useSiteSettings()
-const cart = useCartStore()
+const cart = reactive(useCart())
 const mobileOpen = ref(false)
 
 const navLinks = computed(() =>

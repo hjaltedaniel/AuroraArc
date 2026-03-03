@@ -6,7 +6,7 @@ const props = defineProps<{
   product: Product
 }>()
 
-const cart = useCartStore()
+const cart = useCart()
 const { formatPrice } = useFormatPrice()
 
 const techColor: Record<string, 'teal' | 'violet' | 'coral' | 'glacier'> = {

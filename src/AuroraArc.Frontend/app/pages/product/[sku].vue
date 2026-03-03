@@ -3,7 +3,7 @@ import { categoryLabels, techLevelLabels, activityLabels } from '~~/shared/types
 import type { ProductCategory } from '~~/shared/types/product'
 
 const route = useRoute()
-const cart = useCartStore()
+const cart = useCart()
 const { formatPrice } = useFormatPrice()
 
 const { data: product, error } = useProduct(route.params.sku as string)
