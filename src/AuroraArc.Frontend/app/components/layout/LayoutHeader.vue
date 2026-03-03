@@ -37,6 +37,17 @@ const navLinks = computed(() =>
 
         <!-- Actions -->
         <div class="flex items-center gap-3">
+          <!-- Search -->
+          <NuxtLink
+            to="/search"
+            class="p-2 text-glacier/70 hover:text-teal transition-colors"
+            aria-label="Search"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1 0 4.5 4.5a7.5 7.5 0 0 0 12.15 12.15z" />
+            </svg>
+          </NuxtLink>
+
           <!-- Cart -->
           <button
             class="relative p-2 text-glacier/70 hover:text-teal transition-colors"

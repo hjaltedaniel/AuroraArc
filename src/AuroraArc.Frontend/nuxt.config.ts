@@ -14,6 +14,12 @@ export default defineNuxtConfig({
     // Umbraco Commerce (Storefront REST)
     commerceApiBase: process.env.COMMERCE_API_BASE || 'https://dev-aurora-arc.euwest01.umbraco.io/umbraco/commerce/storefront/api/v1',
     commerceApiKey:  process.env.COMMERCE_API_KEY  || 'a7F9kLm2Qx8ZpR4vT6yBn3HdW0sJcE5U',
+    // Algolia (public — exposed to browser for search)
+    public: {
+      algoliaAppId:      process.env.NUXT_PUBLIC_ALGOLIA_APP_ID      || 'R55NZS8KGD',
+      algoliaSearchKey:  process.env.NUXT_PUBLIC_ALGOLIA_SEARCH_KEY  || '622e4e9e66d9bf9a8c9b2cd3462919c6',
+      algoliaIndexName:  process.env.NUXT_PUBLIC_ALGOLIA_INDEX_NAME  || 'AuroraArc',
+    },
   },
 
   // Disable subdirectory prefix so ui/ArcButton.vue → ArcButton (not UiArcButton).

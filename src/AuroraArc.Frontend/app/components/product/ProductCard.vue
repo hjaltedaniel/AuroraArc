@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Product } from '~~/shared/types/product'
-import { techLevelLabels } from '~~/shared/types/product'
 
 const props = defineProps<{
   product: Product
@@ -8,35 +7,22 @@ const props = defineProps<{
 
 const cart = useCart()
 const { formatPrice } = useFormatPrice()
-
-const techColor: Record<string, 'teal' | 'violet' | 'coral' | 'glacier'> = {
-  'analog': 'glacier',
-  'smart-hybrid': 'teal',
-  'full-digital': 'violet',
-  'ai-powered': 'coral',
-}
 </script>
 
 <template>
   <ArcCard :glow="product.accentColor">
-    <NuxtLink :to="`/product/${product.slug}`" class="block">
+    <NuxtLink :to="`/product/${product.slug}`" class="block group">
       <!-- Image -->
       <div class="aspect-square relative overflow-hidden">
         <img
           v-if="product.heroImageUrl"
           :src="product.heroImageUrl"
           :alt="product.name"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
         <ProductPlaceholderSvg v-else :category="product.category" :color="product.accentColor" />
-
-        <!-- Badges -->
-        <div class="absolute top-3 left-3 flex flex-col gap-1.5">
-          <ArcBadge v-if="product.limitedDrop" color="coral">Limited Drop</ArcBadge>
-          <ArcBadge :color="techColor[product.techLevel]">
-            {{ techLevelLabels[product.techLevel] }}
-          </ArcBadge>
-        </div>
+        <!-- Hover overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
         <!-- Sale badge -->
         <div v-if="product.compareAtPrice" class="absolute top-3 right-3">
@@ -48,7 +34,7 @@ const techColor: Record<string, 'teal' | 'violet' | 'coral' | 'glacier'> = {
     </NuxtLink>
 
     <!-- Info -->
-    <div class="p-4 space-y-3">
+    <div class="p-4 space-y-3 border-t border-white/5">
       <NuxtLink :to="`/product/${product.slug}`">
         <h3 class="font-semibold text-white text-sm leading-tight hover:text-teal transition-colors">
           {{ product.name }}
@@ -69,10 +55,9 @@ const techColor: Record<string, 'teal' | 'violet' | 'coral' | 'glacier'> = {
         variant="secondary"
         size="sm"
         class="w-full"
-        :disabled="!product.inStock"
         @click.prevent="cart.addItem(product)"
       >
-        {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+        Add to Cart
       </ArcButton>
     </div>
   </ArcCard>

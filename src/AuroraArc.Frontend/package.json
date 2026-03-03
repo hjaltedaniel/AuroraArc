@@ -13,10 +13,13 @@
     "@nuxtjs/google-fonts": "^3.2.0",
     "@pinia/nuxt": "^0.11.3",
     "@tailwindcss/vite": "^4.2.1",
+    "algoliasearch": "^5.49.1",
+    "instantsearch.css": "^8.11.0",
     "nuxt": "^4.3.1",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.2.1",
     "vue": "^3.5.28",
+    "vue-instantsearch": "^4.24.0",
     "vue-router": "^4.6.4"
   }
 }
