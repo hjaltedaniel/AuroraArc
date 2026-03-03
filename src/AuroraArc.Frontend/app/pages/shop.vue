@@ -43,6 +43,7 @@ function trackStyle(min: number, max: number, currentMin: number | undefined, cu
           <h1 class="text-3xl sm:text-4xl font-bold text-white">
             All <span class="text-gradient-teal">Gear</span>
           </h1>
+          <p class="text-glacier/35 text-sm mt-1 tracking-wide">Precision expedition equipment for the connected explorer</p>
           <ais-stats class="text-glacier/50 mt-2">
             <template v-slot="{ nbHits }">
               <p>{{ nbHits }} products</p>
@@ -59,17 +60,17 @@ function trackStyle(min: number, max: number, currentMin: number | undefined, cu
 
           <!-- Mobile filter toggle -->
           <button
-            class="lg:hidden w-full glass rounded-lg px-4 py-3 text-sm text-glacier/70 flex items-center justify-between mb-6"
+            class="lg:hidden w-full glass rounded-lg px-4 py-3 text-sm text-glacier/70 flex items-center justify-between mb-6 border border-white/5 hover:border-teal/20 transition-colors duration-200 active:scale-[0.99]"
             @click="showMobileFilters = !showMobileFilters"
           >
-            <span>Filters</span>
+            <span class="font-medium tracking-wide">Filters</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
             </svg>
           </button>
 
           <!-- Sidebar filters -->
-          <aside :class="['space-y-4', showMobileFilters ? 'block' : 'hidden lg:block']">
+          <aside :class="['space-y-4 sticky top-6 self-start', showMobileFilters ? 'block' : 'hidden lg:block']">
 
             <!-- Dynamic facets — visibility controlled via Algolia dashboard Facet Display -->
             <ais-dynamic-widgets>
@@ -196,8 +197,14 @@ function trackStyle(min: number, max: number, currentMin: number | undefined, cu
                   @click="sendEvent('click', item, 'Product Clicked')"
                 />
               </div>
-              <div v-else class="text-center py-20">
-                <p class="text-glacier/40 text-lg">No products match your filters</p>
+              <div v-else class="text-center py-24 space-y-4">
+                <div class="w-16 h-16 rounded-full glass border border-white/5 flex items-center justify-center mx-auto">
+                  <svg class="w-7 h-7 text-glacier/30" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                  </svg>
+                </div>
+                <p class="text-glacier/40 text-lg font-medium">No products found</p>
+                <p class="text-glacier/25 text-sm">Try adjusting or clearing your filters</p>
               </div>
             </template>
           </ais-hits>
@@ -286,5 +293,35 @@ function trackStyle(min: number, max: number, currentMin: number | undefined, cu
   font-size: 0.875rem;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
+}
+
+/* Search box — override satellite theme for dark UI */
+.ais-SearchBox-form {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.ais-SearchBox-input {
+  background: var(--color-midnight-light) !important;
+  border: 1px solid var(--color-midnight-lighter) !important;
+  color: rgb(var(--color-glacier)) !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.875rem !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.ais-SearchBox-input:focus {
+  border-color: rgba(45, 212, 191, 0.35) !important;
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.08) !important;
+  outline: none !important;
+}
+.ais-SearchBox-input::placeholder {
+  color: rgb(var(--color-glacier) / 0.3) !important;
+}
+.ais-SearchBox-submit,
+.ais-SearchBox-reset {
+  color: rgb(var(--color-glacier) / 0.35) !important;
+}
+.ais-SearchBox-submit:hover,
+.ais-SearchBox-reset:hover {
+  color: rgb(var(--color-glacier) / 0.7) !important;
 }
 </style>
